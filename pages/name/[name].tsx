@@ -110,7 +110,7 @@ const PokemonByNamePage: NextPage<IProps> = ({ pokemon }: IProps) => {
 // You should use getStaticPaths if you’re statically pre-rendering pages that use dynamic routes
 
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
-  const { data } = await pokeApi.get<Pokemon>(`/pokemon?limit=151`, {
+  const { data } = await pokeApi.get<PokemonListResponse>(`/pokemon?limit=151`, {
     headers: { "Accept-Encoding": "gzip,deflate,compress" },
   });
   const pokemonNames: string[] = data.results.map((pokemon) => pokemon.name);
@@ -119,17 +119,28 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
     paths: pokemonNames.map((name) => ({
       params: { name },
     })),
-    fallback: false,
+    //fallback: false,
+    fallback: 'blocking',
   };
 };
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
   const { name } = ctx.params as { name: string };
+  const pokemon = await getPokemonInfo(name)
+  if (!pokemon) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 
   return {
     props: {
-      pokemon: await getPokemonInfo(name),
+      pokemon,
     },
+    revalidate: 86400,
   };
 };
 export default PokemonByNamePage;

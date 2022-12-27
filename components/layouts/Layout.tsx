@@ -2,7 +2,8 @@ import { FC, PropsWithChildren } from "react";
 import Head from "next/head";
 import { Navbar } from "../ui";
 
-interface ILayoutProps extends PropsWithChildren {
+//interface ILayoutProps extends PropsWithChildren { //react 18
+interface ILayoutProps {
   title?: string;
 }
 
